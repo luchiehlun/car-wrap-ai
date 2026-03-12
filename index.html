@@ -96,7 +96,7 @@ reader.readAsDataURL(e.target.files[0]);
 
 });
 
-async function wrapColor(){
+function wrapColor(){
 
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
@@ -108,34 +108,18 @@ ctx.drawImage(img,0,0);
 
 let color = document.getElementById("color").value;
 
-const reader = new FileReader();
+/* 顏色覆蓋 */
 
-reader.onload = async function(){
-
-let base64 = reader.result;
-
-let response = await fetch("/api/segment",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-image:base64
-})
-});
-
-let data = await response.json();
-
-console.log(data);
-
-ctx.globalCompositeOperation = "multiply";
+ctx.globalCompositeOperation = "overlay";
 ctx.fillStyle = color;
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.globalCompositeOperation = "destination-atop";
+/* 保留光影 */
+
+ctx.globalCompositeOperation = "multiply";
 ctx.drawImage(img,0,0);
 
-};
+}
 
 reader.readAsDataURL(document.getElementById("upload").files[0]);
 
@@ -145,4 +129,5 @@ reader.readAsDataURL(document.getElementById("upload").files[0]);
 
 </body>
 </html>
+
 
