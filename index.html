@@ -1,48 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>AI改色模擬器</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:#1c1c1c;
+padding:30px;
+border-radius:10px;
+}
+
+select,input{
+padding:10px;
+margin:10px;
+width:200px;
+}
+
+button{
+padding:12px 20px;
+background:#00c3ff;
+border:none;
+color:white;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+}
+
+img{
+margin-top:20px;
+max-width:100%;
+border-radius:10px;
+}
+
+.line-btn{
+background:#06c755;
+margin-top:20px;
+}
+
+</style>
+
 </head>
 
-<body style="font-family:sans-serif;text-align:center">
+<body>
 
-<h1>你的車改色模擬</h1>
+<div class="container">
+
+<h1>AI改色模擬器</h1>
 
 <p>上傳你的車照片</p>
 
 <input type="file" id="carImage">
 
+<h3>選擇膜料品牌</h3>
+
+<select id="brand">
+<option>3M</option>
+<option>AX</option>
+<option>LNPPF</option>
+<option>SYTK</option>
+</select>
+
 <h3>選擇顏色</h3>
 
 <select id="color">
-<option value="nardo grey">Nardo Grey</option>
-<option value="satin black">Satin Black</option>
-<option value="frozen blue">Frozen Blue</option>
-<option value="sakura pink">Sakura Pink</option>
+<option>Nardo Grey</option>
+<option>Satin Black</option>
+<option>Frozen Blue</option>
+<option>Sakura Pink</option>
+<option>Cement Grey</option>
+<option>British Racing Green</option>
 </select>
 
-<br><br>
+<br>
 
-<button onclick="generate()">生成改色</button>
+<button onclick="generate()">生成改色模擬</button>
 
-<br><br>
+<div id="preview"></div>
 
-<img id="result" width="400">
+<button class="line-btn" onclick="window.location.href='https://line.me'">
+LINE預約施工
+</button>
+
+</div>
 
 <script>
 
 function generate(){
 
-let img=document.getElementById("carImage").files[0];
+let file=document.getElementById("carImage").files[0];
 
-if(!img){
-alert("請先上傳照片");
+if(!file){
+
+alert("請先上傳車照片");
+
 return;
+
 }
 
-document.getElementById("result").src=URL.createObjectURL(img);
+let imgURL=URL.createObjectURL(file);
 
-alert("第一版模擬器完成（之後會接AI）");
+document.getElementById("preview").innerHTML=
+"<h3>改色模擬</h3><img src='"+imgURL+"'>";
 
 }
 
