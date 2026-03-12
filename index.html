@@ -108,15 +108,11 @@ ctx.drawImage(img,0,0);
 
 let color = document.getElementById("color").value;
 
-/* 呼叫 AI 分割 API（下一步會用） */
-
 const reader = new FileReader();
 
 reader.onload = async function(){
 
 let base64 = reader.result;
-
-try{
 
 let response = await fetch("/api/segment",{
 method:"POST",
@@ -130,15 +126,38 @@ image:base64
 
 let data = await response.json();
 
-console.log("AI segmentation result:", data);
+console.log("mask result:",data);
 
-}catch(error){
+/* 建立遮罩圖層 */
 
-console.log("segment API not ready yet");
+let maskCanvas = document.createElement("canvas");
+maskCanvas.width = canvas.width;
+maskCanvas.height = canvas.height;
+
+let maskCtx = maskCanvas.getContext("2d");
+
+/* 暫時用亮度區域當車身 mask */
+
+let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+let pixels = imgData.data;
+
+for(let i=0;i<pixels.length;i+=4){
+
+let brightness = (pixels[i]+pixels[i+1]+pixels[i+2])/3;
+
+if(brightness < 200){
+
+pixels[i] *= 0.6;
+pixels[i+1] *= 0.6;
+pixels[i+2] *= 0.6;
 
 }
 
-/* 改色效果 */
+}
+
+ctx.putImageData(imgData,0,0);
+
+/* 套改色 */
 
 ctx.globalCompositeOperation = "overlay";
 ctx.fillStyle = color;
@@ -157,3 +176,4 @@ reader.readAsDataURL(document.getElementById("upload").files[0]);
 
 </body>
 </html>
+
