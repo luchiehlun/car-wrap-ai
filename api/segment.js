@@ -1,16 +1,20 @@
 export default async function handler(req, res) {
 
-try{
+const image = req.body.image;
 
 const response = await fetch(
-"https://api-inference.huggingface.co/models/facebook/sam-vit-huge",
+"https://api.replicate.com/v1/predictions",
 {
-method:"POST",
-headers:{
-"Content-Type":"application/json"
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"Authorization": `Token ${process.env.REPLICATE_API_TOKEN}`
 },
 body: JSON.stringify({
-inputs:req.body.image
+version: "3e2b06c8e5d2c7f6a3a4c3f2e9b4c6e8b0f6e9a8",
+input: {
+image: image
+}
 })
 }
 );
@@ -18,15 +22,5 @@ inputs:req.body.image
 const data = await response.json();
 
 res.status(200).json(data);
-
-}
-
-catch(error){
-
-res.status(500).json({
-error:error.message
-});
-
-}
 
 }
