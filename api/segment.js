@@ -5,15 +5,15 @@ const image = req.body.image;
 const response = await fetch(
 "https://api.replicate.com/v1/predictions",
 {
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":`Token ${process.env.REPLICATE_API_TOKEN}`
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"Authorization": `Token ${process.env.REPLICATE_API_TOKEN}`
 },
-body:JSON.stringify({
-version:"a8b6c4f8f9e2a3c0c8d3e1e6a9f5b7c0",
-input:{
-image:image
+body: JSON.stringify({
+version: "3e2b06c8e5d2c7f6a3a4c3f2e9b4c6e8b0f6e9a8",
+input: {
+image: image
 }
 })
 }
