@@ -5,9 +5,10 @@
 <title>AI車體改色模擬器</title>
 
 <style>
+
 body{
 font-family:Arial;
-background:#111;
+background:#0f0f0f;
 color:white;
 text-align:center;
 padding:40px;
@@ -21,6 +22,12 @@ padding:30px;
 border-radius:12px;
 }
 
+canvas{
+margin-top:20px;
+max-width:100%;
+border-radius:10px;
+}
+
 button{
 padding:12px 20px;
 background:#00c3ff;
@@ -31,16 +38,6 @@ cursor:pointer;
 margin-top:20px;
 }
 
-canvas{
-margin-top:20px;
-max-width:100%;
-border-radius:10px;
-}
-
-select{
-padding:10px;
-margin-top:10px;
-}
 </style>
 
 </head>
@@ -55,20 +52,11 @@ margin-top:10px;
 
 <br><br>
 
-<select id="color">
-
-<option value="#222222">消光黑</option>
-<option value="#777777">水泥灰</option>
-<option value="#d40000">桃紅</option>
-<option value="#ff6b00">橘色</option>
-<option value="#0047ff">寶藍</option>
-<option value="#2ecc71">綠色</option>
-
-</select>
+<input type="color" id="colorPicker" value="#ff0000">
 
 <br>
 
-<button onclick="wrapColor()">生成模擬</button>
+<button onclick="applyColor()">生成模擬</button>
 
 <br>
 
@@ -94,8 +82,7 @@ reader.readAsDataURL(e.target.files[0])
 
 })
 
-
-async function wrapColor(){
+function applyColor(){
 
 let canvas=document.getElementById("canvas")
 let ctx=canvas.getContext("2d")
@@ -105,56 +92,12 @@ canvas.height=img.height
 
 ctx.drawImage(img,0,0)
 
-let color=document.getElementById("color").value
-
-/* 壓縮圖片 */
-
-let resizeCanvas=document.createElement("canvas")
-let rctx=resizeCanvas.getContext("2d")
-
-let maxSize=1024
-
-let ratio=Math.min(maxSize/img.width , maxSize/img.height)
-
-resizeCanvas.width=img.width*ratio
-resizeCanvas.height=img.height*ratio
-
-rctx.drawImage(img,0,0,resizeCanvas.width,resizeCanvas.height)
-
-let compressed=resizeCanvas.toDataURL("image/jpeg",0.8)
-
-
-/* 呼叫 AI segmentation */
-
-let response=await fetch("/api/segment",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-image:compressed
-})
-
-})
-
-let result=await response.json()
-
-console.log("AI segmentation:",result)
-
-
-/* 取得原圖像素 */
+let color=document.getElementById("colorPicker").value
 
 let imgData=ctx.getImageData(0,0,canvas.width,canvas.height)
-
 let pixels=imgData.data
 
 let rgb=hexToRgb(color)
-
-
-/* 模擬 mask 區域改色 */
 
 for(let i=0;i<pixels.length;i+=4){
 
@@ -164,13 +107,11 @@ let b=pixels[i+2]
 
 let brightness=(r+g+b)/3
 
-/* 只改中間亮度（車身最常出現） */
+if(brightness>70 && brightness<200){
 
-if(brightness>80 && brightness<200){
-
-pixels[i]=r*0.3 + rgb.r*0.7
-pixels[i+1]=g*0.3 + rgb.g*0.7
-pixels[i+2]=b*0.3 + rgb.b*0.7
+pixels[i]=r*0.4+rgb.r*0.6
+pixels[i+1]=g*0.4+rgb.g*0.6
+pixels[i+2]=b*0.4+rgb.b*0.6
 
 }
 
@@ -179,7 +120,6 @@ pixels[i+2]=b*0.3 + rgb.b*0.7
 ctx.putImageData(imgData,0,0)
 
 }
-
 
 function hexToRgb(hex){
 
