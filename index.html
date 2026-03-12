@@ -61,7 +61,7 @@ margin-top:10px;
 
 <option value="#444444">消光黑</option>
 <option value="#888888">水泥灰</option>
-<option value="#d40000">活力桃紅</option>
+<option value="#d40000">桃紅</option>
 <option value="#ff6b00">橘色</option>
 <option value="#0047ff">寶藍</option>
 <option value="#2ecc71">綠色</option>
@@ -96,7 +96,7 @@ reader.readAsDataURL(e.target.files[0]);
 
 });
 
-function wrapColor(){
+async function wrapColor(){
 
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
@@ -108,16 +108,48 @@ ctx.drawImage(img,0,0);
 
 let color = document.getElementById("color").value;
 
-/* 顏色覆蓋 */
+/* 呼叫 AI 分割 API（下一步會用） */
+
+const reader = new FileReader();
+
+reader.onload = async function(){
+
+let base64 = reader.result;
+
+try{
+
+let response = await fetch("/api/segment",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+image:base64
+})
+});
+
+let data = await response.json();
+
+console.log("AI segmentation result:", data);
+
+}catch(error){
+
+console.log("segment API not ready yet");
+
+}
+
+/* 改色效果 */
 
 ctx.globalCompositeOperation = "overlay";
 ctx.fillStyle = color;
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-/* 保留光影 */
-
 ctx.globalCompositeOperation = "multiply";
 ctx.drawImage(img,0,0);
+
+};
+
+reader.readAsDataURL(document.getElementById("upload").files[0]);
 
 }
 
@@ -125,6 +157,3 @@ ctx.drawImage(img,0,0);
 
 </body>
 </html>
-
-
-
