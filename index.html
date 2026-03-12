@@ -1,92 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>AI改色模擬器</title>
-
-<style>
-
-body{
-font-family:Arial;
-background:#111;
-color:white;
-text-align:center;
-padding:40px;
-}
-
-.container{
-max-width:800px;
-margin:auto;
-background:#1e1e1e;
-padding:30px;
-border-radius:12px;
-}
-
-button{
-padding:12px 20px;
-background:#00c3ff;
-border:none;
-color:white;
-border-radius:6px;
-cursor:pointer;
-margin-top:20px;
-}
-
-canvas{
-margin-top:20px;
-max-width:100%;
-border-radius:10px;
-}
-
-select{
-padding:10px;
-margin-top:10px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>車體改色模擬器</h1>
-
-<input type="file" id="upload">
-
-<br>
-
-<select id="color">
-
-<option value="#444444">消光黑</option>
-<option value="#888888">水泥灰</option>
-<option value="#d40000">桃紅</option>
-<option value="#ff6b00">橘色</option>
-<option value="#0047ff">寶藍</option>
-<option value="#2ecc71">綠色</option>
-
-</select>
-
-<br>
-
-<button onclick="wrapColor()">生成模擬</button>
-
-<br>
-
-<canvas id="canvas"></canvas>
-
-</div>
-
 <script>
 
 let img = new Image();
 
-document.getElementById("upload").addEventListener("change", function(e){
+document.getElementById("upload").addEventListener("change",function(e){
 
 let reader = new FileReader();
 
-reader.onload = function(event){
+reader.onload=function(event){
 
 img.src = event.target.result;
 
@@ -98,58 +18,56 @@ reader.readAsDataURL(e.target.files[0]);
 
 async function wrapColor(){
 
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
 
-canvas.width = img.width;
-canvas.height = img.height;
+canvas.width=img.width;
+canvas.height=img.height;
 
 ctx.drawImage(img,0,0);
 
-let color = document.getElementById("color").value;
+let color=document.getElementById("color").value;
 
-const reader = new FileReader();
+const reader=new FileReader();
 
-reader.onload = async function(){
+reader.onload=async function(){
 
-let base64 = reader.result;
+let base64=reader.result;
 
-let response = await fetch("/api/segment",{
+let response=await fetch("/api/segment",{
+
 method:"POST",
+
 headers:{
 "Content-Type":"application/json"
 },
+
 body:JSON.stringify({
 image:base64
 })
+
 });
 
-let data = await response.json();
+let data=await response.json();
 
-console.log("mask result:",data);
+console.log("AI mask:",data);
 
-/* 建立遮罩圖層 */
+/* 取得像素 */
 
-let maskCanvas = document.createElement("canvas");
-maskCanvas.width = canvas.width;
-maskCanvas.height = canvas.height;
+let imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+let pixels=imgData.data;
 
-let maskCtx = maskCanvas.getContext("2d");
-
-/* 暫時用亮度區域當車身 mask */
-
-let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-let pixels = imgData.data;
+/* 模擬車身mask */
 
 for(let i=0;i<pixels.length;i+=4){
 
-let brightness = (pixels[i]+pixels[i+1]+pixels[i+2])/3;
+let brightness=(pixels[i]+pixels[i+1]+pixels[i+2])/3;
 
-if(brightness < 200){
+if(brightness<200){
 
-pixels[i] *= 0.6;
-pixels[i+1] *= 0.6;
-pixels[i+2] *= 0.6;
+pixels[i]=pixels[i]*0.5 + hexToRgb(color).r*0.5;
+pixels[i+1]=pixels[i+1]*0.5 + hexToRgb(color).g*0.5;
+pixels[i+2]=pixels[i+2]*0.5 + hexToRgb(color).b*0.5;
 
 }
 
@@ -157,23 +75,20 @@ pixels[i+2] *= 0.6;
 
 ctx.putImageData(imgData,0,0);
 
-/* 套改色 */
-
-ctx.globalCompositeOperation = "overlay";
-ctx.fillStyle = color;
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.globalCompositeOperation = "multiply";
-ctx.drawImage(img,0,0);
-
 };
 
 reader.readAsDataURL(document.getElementById("upload").files[0]);
 
 }
 
+function hexToRgb(hex){
+
+let r=parseInt(hex.substring(1,3),16);
+let g=parseInt(hex.substring(3,5),16);
+let b=parseInt(hex.substring(5,7),16);
+
+return {r,g,b};
+
+}
+
 </script>
-
-</body>
-</html>
-
