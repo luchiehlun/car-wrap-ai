@@ -1,3 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI改色模擬器</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:#1e1e1e;
+padding:30px;
+border-radius:12px;
+}
+
+button{
+padding:12px 20px;
+background:#00c3ff;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+margin-top:20px;
+}
+
+canvas{
+margin-top:20px;
+max-width:100%;
+border-radius:10px;
+}
+
+select{
+padding:10px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>車體改色模擬器</h1>
+
+<input type="file" id="upload">
+
+<br>
+
+<select id="color">
+
+<option value="#444444">消光黑</option>
+<option value="#888888">水泥灰</option>
+<option value="#d40000">桃紅</option>
+<option value="#ff6b00">橘色</option>
+<option value="#0047ff">寶藍</option>
+<option value="#2ecc71">綠色</option>
+
+</select>
+
+<br>
+
+<button onclick="wrapColor()">生成模擬</button>
+
+<br>
+
+<canvas id="canvas"></canvas>
+
+</div>
+
 <script>
 
 let img = new Image();
@@ -92,3 +172,6 @@ return {r,g,b};
 }
 
 </script>
+
+</body>
+</html>
