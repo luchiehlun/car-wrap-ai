@@ -5,10 +5,9 @@
 <title>AI車體改色模擬器</title>
 
 <style>
-
 body{
 font-family:Arial;
-background:#0f0f0f;
+background:#111;
 color:white;
 text-align:center;
 padding:40px;
@@ -22,15 +21,6 @@ padding:30px;
 border-radius:12px;
 }
 
-h1{
-margin-bottom:20px;
-}
-
-select,input{
-padding:10px;
-margin-top:10px;
-}
-
 button{
 padding:12px 20px;
 background:#00c3ff;
@@ -39,7 +29,6 @@ color:white;
 border-radius:6px;
 cursor:pointer;
 margin-top:20px;
-font-size:16px;
 }
 
 canvas{
@@ -48,6 +37,10 @@ max-width:100%;
 border-radius:10px;
 }
 
+select{
+padding:10px;
+margin-top:10px;
+}
 </style>
 
 </head>
@@ -104,14 +97,6 @@ reader.readAsDataURL(e.target.files[0])
 
 async function wrapColor(){
 
-if(!img.src){
-
-alert("請先上傳圖片")
-
-return
-
-}
-
 let canvas=document.getElementById("canvas")
 let ctx=canvas.getContext("2d")
 
@@ -122,8 +107,7 @@ ctx.drawImage(img,0,0)
 
 let color=document.getElementById("color").value
 
-
-/* 壓縮圖片避免413錯誤 */
+/* 壓縮圖片 */
 
 let resizeCanvas=document.createElement("canvas")
 let rctx=resizeCanvas.getContext("2d")
@@ -140,7 +124,7 @@ rctx.drawImage(img,0,0,resizeCanvas.width,resizeCanvas.height)
 let compressed=resizeCanvas.toDataURL("image/jpeg",0.8)
 
 
-/* 呼叫AI */
+/* 呼叫 AI segmentation */
 
 let response=await fetch("/api/segment",{
 
@@ -156,20 +140,21 @@ image:compressed
 
 })
 
-
 let result=await response.json()
 
-console.log("AI segmentation result:",result)
+console.log("AI segmentation:",result)
 
 
-
-/* 改色演算法 */
+/* 取得原圖像素 */
 
 let imgData=ctx.getImageData(0,0,canvas.width,canvas.height)
 
 let pixels=imgData.data
 
 let rgb=hexToRgb(color)
+
+
+/* 模擬 mask 區域改色 */
 
 for(let i=0;i<pixels.length;i+=4){
 
@@ -179,14 +164,13 @@ let b=pixels[i+2]
 
 let brightness=(r+g+b)/3
 
+/* 只改中間亮度（車身最常出現） */
 
-/* 排除亮區域 */
+if(brightness>80 && brightness<200){
 
-if(brightness<200){
-
-pixels[i]=r*0.4 + rgb.r*0.6
-pixels[i+1]=g*0.4 + rgb.g*0.6
-pixels[i+2]=b*0.4 + rgb.b*0.6
+pixels[i]=r*0.3 + rgb.r*0.7
+pixels[i+1]=g*0.3 + rgb.g*0.7
+pixels[i+2]=b*0.3 + rgb.b*0.7
 
 }
 
