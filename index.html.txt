@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI改色模擬器</title>
+</head>
+
+<body style="font-family:sans-serif;text-align:center">
+
+<h1>你的車改色模擬</h1>
+
+<p>上傳你的車照片</p>
+
+<input type="file" id="carImage">
+
+<h3>選擇顏色</h3>
+
+<select id="color">
+<option value="nardo grey">Nardo Grey</option>
+<option value="satin black">Satin Black</option>
+<option value="frozen blue">Frozen Blue</option>
+<option value="sakura pink">Sakura Pink</option>
+</select>
+
+<br><br>
+
+<button onclick="generate()">生成改色</button>
+
+<br><br>
+
+<img id="result" width="400">
+
+<script>
+
+function generate(){
+
+let img=document.getElementById("carImage").files[0];
+
+if(!img){
+alert("請先上傳照片");
+return;
+}
+
+document.getElementById("result").src=URL.createObjectURL(img);
+
+alert("第一版模擬器完成（之後會接AI）");
+
+}
+
+</script>
+
+</body>
+</html>
