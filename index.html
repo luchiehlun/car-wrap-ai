@@ -114,52 +114,45 @@ LINE預約施工
 
 async function generate(){
 
-let file=document.getElementById("carImage").files[0];
+let file = document.getElementById("carImage").files[0];
 
 if(!file){
 alert("請先上傳照片");
 return;
 }
 
-let color=document.getElementById("color").value;
+let color = document.getElementById("color").value;
 
-let imgURL=URL.createObjectURL(file);
+let imgURL = URL.createObjectURL(file);
 
 document.getElementById("preview").innerHTML =
 "<div><h3>原車</h3><img src='"+imgURL+"'></div>"+
 "<div><h3>AI生成中...請等待</h3></div>";
 
-const reader=new FileReader();
+const reader = new FileReader();
 
-reader.onload=async function(){
+reader.onload = async function(){
 
-let base64=reader.result;
+let base64 = reader.result;
 
-let response=await fetch("https://api.replicate.com/v1/predictions",{
+let response = await fetch("/api/generate", {
 
 method:"POST",
 
 headers:{
-"Authorization":"Token YOUR_API_KEY",
 "Content-Type":"application/json"
 },
 
 body:JSON.stringify({
-
-version:"db21e45e9a9c",
-
-input:{
 image:base64,
 prompt:"change the car body color to "+color+" vinyl wrap"
-}
-
 })
 
 });
 
-let data=await response.json();
+let data = await response.json();
 
-checkResult(data.urls.get);
+console.log(data);
 
 };
 
@@ -167,35 +160,9 @@ reader.readAsDataURL(file);
 
 }
 
-async function checkResult(url){
-
-let result=await fetch(url,{
-headers:{
-"Authorization":"Token r8_5RnAhh92dq7bKHNdtWMDAq2B4dDy61E17Vwds"
-}
-});
-
-let data=await result.json();
-
-if(data.status==="succeeded"){
-
-let image=data.output[0];
-
-document.getElementById("preview").innerHTML +=
-"<div><h3>AI改色</h3><img src='"+image+"'></div>";
-
-}
-
-else{
-
-setTimeout(()=>checkResult(url),2000);
-
-}
-
-}
-
 </script>
 
 </body>
 </html>
+
 
